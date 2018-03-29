@@ -1,0 +1,128 @@
+<html>
+
+<head>
+    <script src="static/js/echarts.js"></script>
+    <script src="static/js/map/china.js"></script>
+    <link rel="stylesheet" href="static/css/" type="text/css" />
+    <!-- <script src="map/js/china-country.js"></script> -->
+    <script>
+        var chart = echarts.init(document.getElementById('main'));
+        chart.setOption({
+            series: [{
+                type: 'map',
+                map: 'china',
+            }]
+        });
+    </script>
+</head>
+
+<body>
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('main'));
+
+        var geoCoordMap = {{ nw|tojson }}
+        var usermap = {{ usermap|tojson }}
+
+        var data = [
+            {name:"\u8d64\u5cf0\u5e02", value: 1}
+        ]
+
+        var convertData = function (data) {
+            var res = [];
+            for (var i = 0; i < data.length; i++) {
+                var geoCoord = geoCoordMap[data[i].name];
+                if (geoCoord) {
+                    res.push({
+                        name: data[i].name,
+                        value: geoCoord.concat(data[i].value)
+                    });
+                }
+            }
+            return res;
+        };
+
+        option = {
+            backgroundColor: '#404a59',
+            title: {
+                text: '用户分布',
+                subtext: 'our time',
+                sublink: '#',
+                x: 'center',
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    return params.name + ' : ' + params.value[2];
+                }
+            },
+            // legend: {
+            //     orient: 'vertical',
+            //     y: 'bottom',
+            //     x: 'right',
+            //     data: ['用户'],
+            //     textStyle: {
+            //         color: '#fff'
+            //     }
+            // },
+            visualMap: {
+                min: 0,
+                max: 10000,
+                calculable: true,
+                inRange: {
+                    color: ['#50a3ba', '#eac736', '#d94e5d']
+                },
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                label: {
+                    emphasis: {
+                        show: false
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        areaColor: '#323c48',
+                        borderColor: '#111'
+                    },
+                    emphasis: {
+                        areaColor: '#2a333d'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'number',
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: convertData(data),
+                    symbolSize: 12,
+                    label: {
+                        normal: {
+                            show: false
+                        },
+                        emphasis: {
+                            show: false
+                        }
+                    },
+                    itemStyle: {
+                        emphasis: {
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            ]
+        }
+        myChart.setOption(option);
+    </script>
+</body>
+
+</html>
